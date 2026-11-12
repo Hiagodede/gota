@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5395612178988459161}
   - component: {fileID: 669507286165424832}
   - component: {fileID: 2038992832378871313}
+  - component: {fileID: 776107168951570184}
   m_Layer: 0
   m_Name: Obstacle_Block
   m_TagString: Untagged
@@ -84,7 +85,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 4
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 72843ce274471ff468d7da2efc5499a6, type: 3}
+  m_Sprite: {fileID: 2537882373423050008, guid: ed5c07b285b4df948844ac3415791fca, type: 3}
   m_Color: {r: 0.88, g: 0.98, b: 0.99, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -133,7 +134,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.56, y: 2.56}
+    oldSize: {x: 2.48, y: 2.48}
     newSize: {x: 2.56, y: 2.56}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -167,3 +168,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gota.Obstacle
   kind: 0
+--- !u!114 &776107168951570184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4539473782926786133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa56a7c1c605aea4d94a0d86c237838d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gota.PaletteColor
+  palette: {fileID: 11400000, guid: e81569044d5bdb84795f31baa58f0486, type: 2}
+  slot: 3
+  alpha: 1
+  shade: 0

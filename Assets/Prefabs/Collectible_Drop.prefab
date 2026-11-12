@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1842248596590692690}
   - component: {fileID: 7939197045116938707}
   - component: {fileID: 203413284712065247}
+  - component: {fileID: 6756386984693964141}
   m_Layer: 0
   m_Name: Collectible_Drop
   m_TagString: Untagged
@@ -84,7 +85,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 4
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: 2ca36dd31a657f944a5b728585ebf8bf, type: 3}
+  m_Sprite: {fileID: 1420392674546920779, guid: 152937127c04c2741b03d0b8b34d56a8, type: 3}
   m_Color: {r: 0.38, g: 0.71, b: 0.8, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -157,3 +158,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gota.Collectible
   value: 10
+--- !u!114 &6756386984693964141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232746202862692689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa56a7c1c605aea4d94a0d86c237838d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gota.PaletteColor
+  palette: {fileID: 11400000, guid: e81569044d5bdb84795f31baa58f0486, type: 2}
+  slot: 2
+  alpha: 1
+  shade: 0

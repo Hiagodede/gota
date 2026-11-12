@@ -14,13 +14,16 @@ namespace Gota
         [Tooltip("Quando o centro passar desta altura, o segmento volta para baixo.")]
         [SerializeField] private float wrapY = 18f;
 
+        [Tooltip("1 = mesma velocidade do cenário; menor = fundo distante (parallax).")]
+        [SerializeField] private float speedMultiplier = 1f;
+
         private void Update()
         {
             var scroller = WorldScroller.Instance;
             if (scroller == null) return;
 
             Vector3 pos = transform.position;
-            pos.y += scroller.DeltaThisFrame;
+            pos.y += scroller.DeltaThisFrame * speedMultiplier;
             if (pos.y >= wrapY)
             {
                 pos.y -= segmentHeight * 2f;
