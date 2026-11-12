@@ -50,3 +50,6 @@ crashlytics-build.properties
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Arquivos temporarios do Unity
+/.utmp/
