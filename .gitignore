@@ -53,3 +53,10 @@ Thumbs.db
 
 # Arquivos temporarios do Unity
 /.utmp/
+
+# Capturas temporarias
+/Assets/Screenshots/
+/Temp/gif/
+
+# Gerado por pacote de testes de desempenho
+/Assets/Resources/PerformanceTestRun*
