@@ -8,7 +8,7 @@ Jogo 2D vertical de um toque para Android e navegador. Você guia uma gota d'ág
   <img src="docs/screenshots/gameplay.png" width="220" alt="Gameplay do Gota">
 </p>
 
-> GIF de gameplay: em breve.
+> GIF de gameplay: em breve. Para gerar: em Play Mode, menu **Gota > Gravar quadros de gameplay** (12 s com piloto automático), depois `python docs/tools/make_gif.py Temp/gif docs/gota.gif 12`.
 
 **Jogar:** link do itch.io em breve · **Android:** teste fechado no Google Play em breve
 
