@@ -170,6 +170,8 @@ namespace Gota.EditorTools
             bloom.intensity.Override(2.2f);
             bloom.scatter.Override(0.7f);
             bloom.highQualityFiltering.Override(false);
+            bloom.maxIterations.Override(4); // menos passes = mais barato no celular
+            bloom.downscale.Override(BloomDownscaleMode.Half);
             var tone = GetOrAddOverride<Tonemapping>(profile);
             tone.mode.Override(TonemappingMode.ACES);
             var vignette = GetOrAddOverride<Vignette>(profile);

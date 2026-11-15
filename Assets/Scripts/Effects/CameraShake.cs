@@ -32,7 +32,8 @@ namespace Gota
             {
                 float strength = magnitude * (1f - elapsed / duration);
                 Vector2 offset = Random.insideUnitCircle * strength;
-                transform.localPosition = restPosition + new Vector3(offset.x, offset.y, 0f);
+                // Treme nos eixos da própria câmera (direita/cima), para valer em 2D e em 3D.
+                transform.localPosition = restPosition + transform.right * offset.x + transform.up * offset.y;
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
