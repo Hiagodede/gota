@@ -12,7 +12,8 @@ namespace Gota
         [SerializeField] private ParticleSystem deathBurst;
         [SerializeField] private ParticleSystem collectBurst;
         [SerializeField] private CameraShake cameraShake;
-        [SerializeField] private SpriteRenderer playerSprite;
+        [Tooltip("Renderer da gota (sprite na cena 2D, esfera na cena 3D). Some ao morrer.")]
+        [SerializeField] private Renderer playerSprite;
 
         private void OnEnable()
         {

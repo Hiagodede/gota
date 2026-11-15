@@ -60,3 +60,7 @@ Thumbs.db
 
 # Gerado por pacote de testes de desempenho
 /Assets/Resources/PerformanceTestRun*
+
+# Pasta de recuperacao do Unity e meta da pasta de capturas
+/Assets/_Recovery*
+/Assets/Screenshots.meta

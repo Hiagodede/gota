@@ -17,6 +17,11 @@ namespace Gota
         [Tooltip("1 = mesma velocidade do cenário; menor = fundo distante (parallax).")]
         [SerializeField] private float speedMultiplier = 1f;
 
+        [Tooltip("Comprimento total do loop. 0 = 2x a altura do segmento (dois segmentos por coluna).")]
+        [SerializeField] private float loopLength = 0f;
+
+        private float LoopLength => loopLength > 0f ? loopLength : segmentHeight * 2f;
+
         private void Update()
         {
             var scroller = WorldScroller.Instance;
@@ -26,7 +31,7 @@ namespace Gota
             pos.y += scroller.DeltaThisFrame * speedMultiplier;
             if (pos.y >= wrapY)
             {
-                pos.y -= segmentHeight * 2f;
+                pos.y -= LoopLength;
             }
             transform.position = pos;
         }
