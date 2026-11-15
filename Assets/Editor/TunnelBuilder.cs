@@ -453,7 +453,72 @@ namespace Gota.EditorTools
             return p;
         }
 
-        [MenuItem("Gota/Túnel/Tudo (1 a 5)")]
+        // ------------------------------------------------------------------ 6. abertura e idle
+
+        [MenuItem("Gota/Túnel/6. Abertura e idle do menu")]
+        public static void BuildIntro()
+        {
+            var scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath)
+            {
+                Debug.LogWarning("Abra a cena Tunnel antes (ou rode o passo 4).");
+                return;
+            }
+
+            var player = GameObject.Find("Player");
+            var visual = player.transform.Find("Visual").gameObject;
+            if (visual.GetComponent<MenuIdle>() == null) visual.AddComponent<MenuIdle>();
+
+            // Cano enferrujado saindo do teto, em cima da posição inicial da gota.
+            var old = GameObject.Find("IntroPipe");
+            if (old != null) Object.DestroyImmediate(old);
+            var pipe = new GameObject("IntroPipe");
+            float ceilingZ = CenterZ + HalfWidth;
+            float pipeLength = 1.4f;
+            var tube = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Object.DestroyImmediate(tube.GetComponent<Collider>());
+            tube.name = "Tube";
+            tube.transform.SetParent(pipe.transform, false);
+            tube.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // cilindro ao longo de Z
+            tube.transform.localScale = new Vector3(0.9f, pipeLength / 2f, 0.9f);
+            tube.AddComponent<MaterialSlotRenderer>();
+            SetSlot(tube, MaterialSlot.Concrete);
+            // Anel de neon na boca do cano, para a abertura ter luz.
+            var lip = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Object.DestroyImmediate(lip.GetComponent<Collider>());
+            lip.name = "Lip";
+            lip.transform.SetParent(pipe.transform, false);
+            lip.transform.localPosition = new Vector3(0f, 0f, -pipeLength / 2f + 0.05f);
+            lip.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            lip.transform.localScale = new Vector3(1.0f, 0.04f, 1.0f);
+            lip.AddComponent<MaterialSlotRenderer>();
+            SetSlot(lip, MaterialSlot.Neon);
+            pipe.transform.position = new Vector3(-3f, PlayerY + 1.5f, ceilingZ - pipeLength / 2f);
+
+            var game = GameObject.Find("Game");
+            var intro = game.GetComponent<IntroSequence>();
+            if (intro == null) intro = game.AddComponent<IntroSequence>();
+            var so = new SerializedObject(intro);
+            so.FindProperty("dropVisual").objectReferenceValue = visual.transform;
+            so.FindProperty("canvas").objectReferenceValue = GameObject.Find("Canvas").GetComponent<Canvas>();
+            so.FindProperty("splash").objectReferenceValue = GameObject.Find("Effects/SwitchBurst").GetComponent<ParticleSystem>();
+            so.FindProperty("pipe").objectReferenceValue = pipe;
+            float mouthZ = ceilingZ - pipeLength - 0.35f; // boca do cano menos o raio da gota
+            so.FindProperty("spoutLocalPosition").vector3Value = new Vector3(0f, 1.5f, mouthZ);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Túnel desliza devagar fora da partida: o conceito vira o menu.
+            var scroller = game.GetComponent<WorldScroller>();
+            var wso = new SerializedObject(scroller);
+            wso.FindProperty("idleSpeed").floatValue = 1.2f;
+            wso.ApplyModifiedPropertiesWithoutUndo();
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log("Abertura e idle do menu prontos.");
+        }
+
+        [MenuItem("Gota/Túnel/Tudo (1 a 6)")]
         public static void BuildAll()
         {
             CreateRenderer();
@@ -461,6 +526,7 @@ namespace Gota.EditorTools
             CreatePrefabs();
             BuildScene();
             BuildBiomes();
+            BuildIntro();
         }
 
         // ------------------------------------------------------------------ helpers

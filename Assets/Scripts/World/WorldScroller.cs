@@ -25,8 +25,11 @@ namespace Gota
         /// <summary>Multiplicador temporário (portal = 2). A dificuldade continua definindo Speed.</summary>
         public float SpeedMultiplier { get; set; } = 1f;
 
+        [Tooltip("Velocidade do cenário quando a partida NÃO está rodando (menu/game over). 0 = parado.")]
+        [SerializeField] private float idleSpeed = 0f;
+
         /// <summary>Deslocamento vertical (em metros) a aplicar neste frame.</summary>
-        public float DeltaThisFrame => IsScrolling ? Speed * SpeedMultiplier * Time.deltaTime : 0f;
+        public float DeltaThisFrame => IsScrolling ? Speed * SpeedMultiplier * Time.deltaTime : idleSpeed * Time.deltaTime;
 
         private void Awake()
         {
