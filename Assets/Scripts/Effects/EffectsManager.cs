@@ -40,7 +40,7 @@ namespace Gota
         {
             PlayAt(deathBurst, player.position);
             if (cameraShake != null) cameraShake.Shake();
-            if (playerSprite != null) playerSprite.enabled = false;
+            SetPlayerVisible(false);
         }
 
         private void HandleCollected(int value)
@@ -50,7 +50,14 @@ namespace Gota
 
         private void HandleState(GameState state)
         {
-            if (playerSprite != null && state != GameState.GameOver) playerSprite.enabled = true;
+            if (state != GameState.GameOver) SetPlayerVisible(true);
+        }
+
+        private void SetPlayerVisible(bool visible)
+        {
+            if (playerSprite == null) return;
+            // Inclui filhos: na cena 3D a gota é vidro + núcleo.
+            foreach (var r in playerSprite.GetComponentsInChildren<Renderer>(true)) r.enabled = visible;
         }
 
         private static void PlayAt(ParticleSystem ps, Vector3 position)

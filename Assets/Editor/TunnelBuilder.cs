@@ -314,9 +314,17 @@ namespace Gota.EditorTools
             Object.DestroyImmediate(visual.GetComponent<Collider>());
             visual.name = "Visual";
             visual.transform.SetParent(player.transform, false);
-            visual.transform.localScale = Vector3.one * 0.8f;
+            visual.transform.localScale = new Vector3(0.8f, 0.95f, 0.8f); // levemente alongada no sentido da queda
             visual.AddComponent<MaterialSlotRenderer>();
             SetSlot(visual, MaterialSlot.Glass);
+            // Núcleo de luz dentro do vidro: é o que faz a gota "ler" no túnel escuro.
+            var core = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            Object.DestroyImmediate(core.GetComponent<Collider>());
+            core.name = "Core";
+            core.transform.SetParent(visual.transform, false);
+            core.transform.localScale = Vector3.one * 0.45f;
+            core.AddComponent<MaterialSlotRenderer>();
+            SetSlot(core, MaterialSlot.Collectible);
 
             var effects = GameObject.Find("Game").GetComponent<EffectsManager>();
             var eso = new SerializedObject(effects);
