@@ -1,11 +1,13 @@
 # Gota
 
-Jogo 2D vertical de um toque para Android e navegador. Você guia uma gota d'água que cai por um cano: **toque na tela para pular para a parede oposta** e sobreviva o máximo possível enquanto a queda acelera.
+Jogo vertical de um toque para Android e navegador. Você guia uma gota d'água que cai por um túnel escuro de concreto e neon: **toque na tela para pular para a parede oposta** e sobreviva o máximo possível enquanto a queda acelera.
 
 <p align="center">
-  <img src="docs/screenshots/menu.png" width="220" alt="Menu do Gota">
+  <img src="docs/screenshots/tunnel-neon.png" width="200" alt="Bioma Neon">
   &nbsp;&nbsp;
-  <img src="docs/screenshots/gameplay.png" width="220" alt="Gameplay do Gota">
+  <img src="docs/screenshots/tunnel-ferrugem.png" width="200" alt="Bioma Ferrugem">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/intro.png" width="200" alt="Abertura">
 </p>
 
 > GIF de gameplay: em breve. Para gerar: em Play Mode, menu **Gota > Gravar quadros de gameplay** (12 s com piloto automático), depois `python docs/tools/make_gif.py Temp/gif docs/gota.gif 12`.
@@ -18,10 +20,11 @@ Jogo 2D vertical de um toque para Android e navegador. Você guia uma gota d'ág
 - Desvie dos blocos, espinhos e dos blocos que se movem.
 - Pegue as gotinhas: cada uma vale +10 pontos.
 - 1 ponto por metro descido. A velocidade sobe a cada 100 metros.
+- A cada 300 metros o túnel muda de bioma (Ferrugem → Neon) por um portal onde nada te mata.
 
 ## Feito com
 
-- Unity 6 (6000.6.4f1), Universal Render Pipeline 2D
+- Unity 6 (6000.6.4f1), Universal Render Pipeline (cena 3D com gameplay em um eixo, "2.5D")
 - Input System (um código para mouse no editor e toque no celular)
 - C# puro, sem pacotes de terceiros
 - Arte e sons gerados por código (nenhum asset externo)
@@ -57,6 +60,9 @@ Uma classe estática com eventos: `OnWallSwitched`, `OnPlayerDied`, `OnCollected
 ### Outras escolhas
 
 - **A gota não cai; o mundo sobe.** A gota fica parada no eixo Y e `WorldScroller` define uma velocidade única que paredes, fundo, obstáculos e coletáveis seguem. Isso simplifica a câmera (fixa) e o pooling (posições previsíveis).
+- **2.5D sem reescrever o jogo.** A câmera fica em Y positivo olhando para −Y, com o teto em +Z. X continua sendo esquerda/direita, Y virou profundidade e Z é só visual. A física 2D ignora Z, então colisores, spawner e máquina de estados são os mesmos da versão 2D.
+- **Um material por papel visual.** `TunnelMaterials` cria uma cópia de execução por papel (concreto, neon, perigo, gotinha, vidro) e `MaterialSlotRenderer` a entrega a todos os objetos daquele papel. O SRP Batcher agrupa tudo e trocar de bioma é mudar cinco cores.
+- **Cena construída por código.** O menu `Gota > Túnel` (Assets/Editor/TunnelBuilder.cs) gera textura, materiais, prefabs, cena, biomas e abertura do zero. Nada feito à mão no Inspector, tudo reproduzível.
 - **Rigidbody2D cinemático com `useFullKinematicContacts`.** Sem essa flag, corpos cinemáticos não geram triggers com colliders estáticos.
 - **Sprites e sons por código.** Formas desenhadas com funções de distância (SDF) e WAVs sintetizados em C#. Zero dependência de arte externa, e tudo versionado como texto gerador.
 
@@ -67,15 +73,17 @@ Assets/
   Scripts/
     Core/       GameEvents, GameStateMachine, ObjectPool, ScoreManager, HighScoreService
     Player/     PlayerController
-    World/      WorldScroller, ScrollingSegment
+    World/      WorldScroller, ScrollingSegment, TunnelMaterials, MaterialSlotRenderer, BiomeManager, PortalRing, MenuIdle
     Obstacles/  Obstacle, MovingObstacle, Collectible, Scrollable, ObstacleSpawner
     Data/       DifficultyConfig, GamePalette, PaletteColor
     Effects/    EffectsManager, CameraShake
     Audio/      AudioManager
-    UI/         UIManager, MuteButton, FirstPlayHint
-  Prefabs/      Obstacle_Block, Obstacle_Spike, Obstacle_Mover, Collectible_Drop
-  Data/         DifficultyConfig.asset, GamePalette.asset
-  Art/          sprites e ícone (PNG)
+    UI/         UIManager, MuteButton, FirstPlayHint, IntroSequence
+  Editor/       TunnelBuilder (menu Gota > Túnel), GameplayCapture
+  Scenes/       Tunnel (jogo), SampleScene (versão 2D, fora da build)
+  Prefabs/      versão 2D e Tunnel/ (segmento do túnel e obstáculos 3D)
+  Data/         DifficultyConfig.asset, GamePalette.asset, Palettes/ (um por bioma)
+  Art/          sprites, ícone, textura de concreto, Materials/, Meshes/
   Audio/        sons e música (WAV)
 docs/
   devlog/       um post por marco
@@ -86,7 +94,7 @@ docs/
 
 1. Instale o Unity Hub e o Unity **6000.6.4f1** com WebGL e Android Build Support.
 2. Clone este repositório e abra a pasta no Unity Hub.
-3. Abra `Assets/Scenes/SampleScene.unity` e aperte Play. No editor, o clique do mouse faz o papel do toque.
+3. Abra `Assets/Scenes/Tunnel.unity` e aperte Play. No editor, o clique do mouse faz o papel do toque.
 
 Builds: `File > Build Profiles`, escolha Android ou Web.
 
@@ -96,6 +104,7 @@ Builds: `File > Build Profiles`, escolha Android ou Web.
 - [Marco 1 — Mecânica principal](docs/devlog/02-marco-1-mecanica.md)
 - [Marco 2 — Jogo completo](docs/devlog/03-marco-2-jogo-completo.md)
 - [Marco 3 — Arte, som e sensação](docs/devlog/04-marco-3-arte-e-som.md)
+- [Marco 5 — Direção de arte 2.5D](docs/devlog/05-marco-5-tunel-25d.md)
 
 ## Próximos passos
 

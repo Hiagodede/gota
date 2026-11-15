@@ -64,3 +64,4 @@ Thumbs.db
 # Pasta de recuperacao do Unity e meta da pasta de capturas
 /Assets/_Recovery*
 /Assets/Screenshots.meta
+/Assets/Resources.meta
