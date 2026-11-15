@@ -22,8 +22,11 @@ namespace Gota
         /// <summary>Verdadeiro enquanto o cenário deve se mover.</summary>
         public bool IsScrolling { get; set; }
 
+        /// <summary>Multiplicador temporário (portal = 2). A dificuldade continua definindo Speed.</summary>
+        public float SpeedMultiplier { get; set; } = 1f;
+
         /// <summary>Deslocamento vertical (em metros) a aplicar neste frame.</summary>
-        public float DeltaThisFrame => IsScrolling ? Speed * Time.deltaTime : 0f;
+        public float DeltaThisFrame => IsScrolling ? Speed * SpeedMultiplier * Time.deltaTime : 0f;
 
         private void Awake()
         {

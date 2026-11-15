@@ -15,8 +15,10 @@ namespace Gota
         public static event Action<int> OnScoreChanged;   // pontuação atual
         public static event Action<int> OnHighScoreChanged;
         public static event Action<GameState> OnStateChanged;
+        public static event Action<int> OnBiomeChanged;   // índice do bioma novo (0 = primeiro)
 
         public static void RaiseWallSwitched() => OnWallSwitched?.Invoke();
+        public static void RaiseBiomeChanged(int index) => OnBiomeChanged?.Invoke(index);
         public static void RaisePlayerDied() => OnPlayerDied?.Invoke();
         public static void RaiseCollected(int value) => OnCollected?.Invoke(value);
         public static void RaiseScoreChanged(int score) => OnScoreChanged?.Invoke(score);

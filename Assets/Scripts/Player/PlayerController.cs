@@ -24,6 +24,9 @@ namespace Gota
         /// <summary>Quando falso, ignora toques (menu, pausa, game over).</summary>
         public bool InputEnabled { get; set; } = true;
 
+        /// <summary>Quando verdadeiro, obstáculos não matam (portal entre biomas). Coletáveis continuam valendo.</summary>
+        public bool Invulnerable { get; set; }
+
         public bool IsOnLeft { get; private set; }
 
         private Rigidbody2D rb;
@@ -106,7 +109,7 @@ namespace Gota
                 return;
             }
 
-            if (other.GetComponent<Obstacle>() != null)
+            if (!Invulnerable && other.GetComponent<Obstacle>() != null)
             {
                 GameEvents.RaisePlayerDied();
             }

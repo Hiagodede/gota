@@ -51,6 +51,42 @@ namespace Gota
         /// <summary>Material de execução do papel pedido (sempre a mesma instância).</summary>
         public Material Get(MaterialSlot slot) => runtime[slot];
 
+        [Header("Como a paleta vira material")]
+        [Tooltip("Brilho HDR do neon (acima de 1 o bloom acende).")]
+        [SerializeField] private float neonIntensity = 1.4f;
+        [Tooltip("Quanto clarear a cor Wall da paleta para o concreto.")]
+        [Range(0f, 1f)] [SerializeField] private float concreteLift = 0.3f;
+        [SerializeField] private Camera targetCamera;
+
+        private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+        private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+
+        /// <summary>
+        /// Aplica uma mistura de duas paletas (t = 0 → from, t = 1 → to) a todos os
+        /// materiais, à névoa, à luz ambiente e ao fundo da câmera.
+        /// </summary>
+        public void Apply(GamePalette from, GamePalette to, float t)
+        {
+            Color background = Color.Lerp(from.background, to.background, t);
+            Color wall = Color.Lerp(from.wall, to.wall, t);
+            Color accent = Color.Lerp(from.accent, to.accent, t);
+            Color light = Color.Lerp(from.light, to.light, t);
+
+            runtime[MaterialSlot.Concrete].SetColor(BaseColor, Color.Lerp(wall, Color.white, concreteLift));
+            runtime[MaterialSlot.Neon].SetColor(BaseColor, accent * neonIntensity);
+            runtime[MaterialSlot.Danger].SetColor(BaseColor, light * 0.88f);
+            runtime[MaterialSlot.Danger].SetColor(EmissionColor, light * 0.12f);
+            runtime[MaterialSlot.Collectible].SetColor(BaseColor, accent);
+            runtime[MaterialSlot.Collectible].SetColor(EmissionColor, accent * 1.2f);
+            runtime[MaterialSlot.Glass].SetColor(EmissionColor, accent * 0.35f);
+
+            RenderSettings.fogColor = background;
+            // Ambiente entre a parede e o neon: escuro, mas com a cor do bioma.
+            RenderSettings.ambientLight = Color.Lerp(wall, accent, 0.5f);
+            var cam = targetCamera != null ? targetCamera : Camera.main;
+            if (cam != null) cam.backgroundColor = background;
+        }
+
         /// <summary>Material original (asset) do papel, para quem precisa do valor de referência.</summary>
         public Material Source(MaterialSlot slot)
         {

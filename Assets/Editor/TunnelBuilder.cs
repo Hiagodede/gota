@@ -345,13 +345,122 @@ namespace Gota.EditorTools
             Debug.Log("Cena Tunnel montada e salva em " + ScenePath);
         }
 
-        [MenuItem("Gota/Túnel/Tudo (1 a 4)")]
+        // ------------------------------------------------------------------ 5. biomas
+
+        private const string PaletteFolder = "Assets/Data/Palettes";
+
+        [MenuItem("Gota/Túnel/5. Biomas e portal")]
+        public static void BuildBiomes()
+        {
+            EnsureFolder(PaletteFolder);
+            var ferrugem = GetOrCreatePalette("Ferrugem",
+                new Color(0.09f, 0.05f, 0.03f), new Color(0.30f, 0.17f, 0.10f),
+                new Color(1.00f, 0.55f, 0.22f), new Color(1.00f, 0.92f, 0.84f));
+            var neon = GetOrCreatePalette("Neon",
+                new Color(0.02f, 0.07f, 0.11f), new Color(0.08f, 0.24f, 0.31f),
+                new Color(0.37f, 0.89f, 0.94f), new Color(0.90f, 0.98f, 1.00f));
+
+            var scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath)
+            {
+                Debug.LogWarning("Abra a cena Tunnel antes (ou rode o passo 4).");
+                return;
+            }
+
+            // Portal: aro grosso, nasce escondido.
+            var old = GameObject.Find("Portal");
+            if (old != null) Object.DestroyImmediate(old);
+            var portalGo = new GameObject("Portal");
+            Ring(portalGo, "Ring", 0f);
+            foreach (Transform bar in portalGo.transform.GetChild(0))
+            {
+                Vector3 sc = bar.localScale;
+                sc.y = 0.5f; // bem mais grosso que um aro comum
+                bar.localScale = sc;
+            }
+            portalGo.transform.position = new Vector3(0f, -14f, 0f);
+            var portal = portalGo.AddComponent<PortalRing>();
+            portalGo.SetActive(false);
+
+            // Nome do bioma no centro da tela (some sozinho).
+            var canvas = GameObject.Find("Canvas");
+            var oldLabel = canvas.transform.Find("BiomeLabel");
+            if (oldLabel != null) Object.DestroyImmediate(oldLabel.gameObject);
+            var reference = canvas.GetComponentInChildren<UnityEngine.UI.Text>(true);
+            var labelGo = new GameObject("BiomeLabel", typeof(RectTransform));
+            labelGo.transform.SetParent(canvas.transform, false);
+            var rect = labelGo.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.1f, 0.6f);
+            rect.anchorMax = new Vector2(0.9f, 0.7f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var group = labelGo.AddComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.blocksRaycasts = false;
+            group.interactable = false;
+            var text = labelGo.AddComponent<UnityEngine.UI.Text>();
+            text.font = reference != null ? reference.font : null;
+            text.fontSize = 44;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = new Color(0.9f, 0.98f, 1f);
+            text.text = "NEON";
+            text.raycastTarget = false;
+
+            // Gerente de biomas no objeto Game.
+            var game = GameObject.Find("Game");
+            var manager = game.GetComponent<BiomeManager>();
+            if (manager == null) manager = game.AddComponent<BiomeManager>();
+            var so = new SerializedObject(manager);
+            var list = so.FindProperty("biomes");
+            list.arraySize = 2;
+            list.GetArrayElementAtIndex(0).objectReferenceValue = ferrugem;
+            list.GetArrayElementAtIndex(1).objectReferenceValue = neon;
+            so.FindProperty("portal").objectReferenceValue = portal;
+            so.FindProperty("biomeLabel").objectReferenceValue = group;
+            so.FindProperty("biomeLabelText").objectReferenceValue = text;
+            so.FindProperty("score").objectReferenceValue = game.GetComponent<ScoreManager>();
+            so.FindProperty("scroller").objectReferenceValue = game.GetComponent<WorldScroller>();
+            so.FindProperty("player").objectReferenceValue = GameObject.Find("Player").GetComponent<PlayerController>();
+            so.FindProperty("spawner").objectReferenceValue = GameObject.Find("ObstacleSpawner").GetComponent<ObstacleSpawner>();
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var mats = GameObject.Find("TunnelMaterials").GetComponent<TunnelMaterials>();
+            var mso = new SerializedObject(mats);
+            mso.FindProperty("targetCamera").objectReferenceValue = Camera.main;
+            mso.FindProperty("neonIntensity").floatValue = 1.4f;
+            mso.FindProperty("concreteLift").floatValue = 0.3f;
+            mso.ApplyModifiedPropertiesWithoutUndo();
+
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+            Debug.Log("Biomas Ferrugem e Neon + portal prontos.");
+        }
+
+        private static GamePalette GetOrCreatePalette(string name, Color background, Color wall, Color accent, Color light)
+        {
+            string path = PaletteFolder + "/" + name + ".asset";
+            var p = AssetDatabase.LoadAssetAtPath<GamePalette>(path);
+            if (p == null)
+            {
+                p = ScriptableObject.CreateInstance<GamePalette>();
+                AssetDatabase.CreateAsset(p, path);
+            }
+            p.background = background;
+            p.wall = wall;
+            p.accent = accent;
+            p.light = light;
+            EditorUtility.SetDirty(p);
+            return p;
+        }
+
+        [MenuItem("Gota/Túnel/Tudo (1 a 5)")]
         public static void BuildAll()
         {
             CreateRenderer();
             CreateMaterials();
             CreatePrefabs();
             BuildScene();
+            BuildBiomes();
         }
 
         // ------------------------------------------------------------------ helpers
