@@ -97,11 +97,15 @@ Builds: `File > Build Profiles`, escolha Android ou Web.
 - [Marco 2 — Jogo completo](docs/devlog/03-marco-2-jogo-completo.md)
 - [Marco 3 — Arte, som e sensação](docs/devlog/04-marco-3-arte-e-som.md)
 
+## Próximos passos
+
+A direção completa do jogo (arte 2.5D, evaporação, biomas, skins, monetização e os Marcos 5 a 8) está no [GDD](docs/GDD.md).
+
 ## Depois da 1.0
 
-- Anúncios recompensados para continuar a partida
-- Skins de gota
+- Skins premium, desafio diário e modo Zen
 - Ranking online
+- iOS
 
 ## Licença
 

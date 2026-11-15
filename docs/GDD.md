@@ -1,6 +1,6 @@
 # GOTA — Game Design Document
 
-**Versão:** 0.1 (rascunho para discussão) · **Data:** 15/11/2026 · **Autor:** Hiago do Carmo Lopes (design), com Claude (redação e análise técnica)
+**Versão:** 0.2 (decisões tomadas, monetização definida) · **Data:** 15/11/2026 · **Autor:** Hiago do Carmo Lopes (design), com Claude (redação e análise técnica)
 
 > Este documento descreve o jogo **como queremos que ele seja**, não só o que já existe. O protótipo atual (Marcos 0–3 do plano) é a base técnica; aqui definimos a direção de arte, as mecânicas novas, a progressão e o que entra em cada versão. Tudo que for marcado **[1.0]** entra no lançamento; **[1.1]** vem logo depois; **[2.0]** é a visão de longo prazo.
 
@@ -279,6 +279,7 @@ Moeda: **gotinhas acumuladas** (total histórico, não gasta). Cada skin tem um 
 | **Lava** | Laranja incandescente, fumaça | Rastro que brilha e apaga | "tsss" | Sobreviver 60 s no bioma Vapor |
 | **Cristal** | A esfera do quadro 06 | Faíscas | Vidro | Recorde ≥ 1.500 m |
 | **Vazio** | Só o contorno neon, interior preto | Nenhum | Silêncio | Chegar ao bioma Vazio |
+| **Dourada** | Ouro líquido, brilho quente | Pó de ouro | Sino | Compra "Apoie o desenvolvedor" [1.1] |
 
 **[1.0]:** Água, Óleo, Tinta. **[1.1]:** o resto. Implementação: `DropSkin` (ScriptableObject) com material, prefab de rastro, clipes de som e condição de desbloqueio; `SkinService` lê/salva em `PlayerPrefs`.
 
@@ -290,6 +291,83 @@ Moeda: **gotinhas acumuladas** (total histórico, não gasta). Cada skin tem um 
 | **Zen** | [1.1] | Sem evaporação, sem morte (bater só faz a gota ricochetear e perde combo). Música ambiente. Para quem quer só olhar o túnel. Não conta recorde. |
 | **Desafio diário** | [1.1] | Semente fixa por dia, 1 tentativa que vale, ranking local do dia |
 | **Hardcore** | [2.0] | Evaporação x2, sem escudo, começa em 6 m/s. Recorde separado. |
+
+---
+
+### 5.4 Monetização
+
+**Decisão (15/11/2026):** monetizar ao máximo **sem quebrar a confiança do jogador**. Em jogo de uma vida curta, confiança é retenção, e retenção é o que multiplica a receita de anúncio. A regra de ouro: **o jogador nunca é interrompido no meio de uma partida.** Tudo acontece no menu ou no game over.
+
+#### Como jogos desse gênero ganham dinheiro (realidade)
+
+| Fonte | Peso típico em one-tap/hypercasual | Observação |
+|---|---|---|
+| Anúncio recompensado (jogador escolhe ver) | 40–60 % | Maior valor por exibição; não irrita, porque o jogador pediu |
+| Anúncio intersticial (tela cheia entre partidas) | 30–50 % | Maior volume; é o que mais derruba retenção se exagerar |
+| Compra no app (IAP) | 5–15 % | Poucos compram, mas quem compra paga 10× o que um jogador de anúncio rende |
+| Banner | < 5 % | Feio, rende quase nada; **não usamos** |
+
+Sem orçamento de aquisição de usuários, a receita vem de **retenção × anúncios por sessão**. Por isso o jogo precisa primeiro ser bom (biomas, skins, recorde) e só então mostrar anúncio. Expectativa honesta: um primeiro jogo publicado sem marketing rende pouco em dinheiro e muito em portfólio; a estrutura abaixo é a mesma que um estúdio usaria, então escala se o jogo pegar.
+
+#### Camada 1 — Anúncios recompensados [1.0]
+
+Sempre opcionais, sempre com o prêmio escrito no botão.
+
+| Oferta | Onde | Regra |
+|---|---|---|
+| **Continuar** | Game over | 1 vez por partida. A gota volta com massa cheia e 1,5 s invulnerável. Botão com contagem de 5 s; se o jogador não quiser, a tela de game over normal aparece. |
+| **Dobrar gotinhas** | Game over | Dobra as gotinhas da partida (moeda das skins). Sem limite por dia. |
+| **Experimentar skin** | Tela de skins | Usa uma skin bloqueada por 1 partida. Cria desejo de comprar/desbloquear. |
+| **Pular espera do diário** [1.1] | Desafio diário | Segunda tentativa no desafio do dia. |
+
+#### Camada 2 — Intersticiais com limite [1.0]
+
+| Regra | Valor | Por quê |
+|---|---|---|
+| Primeiro intersticial só após | 3 partidas completas **e** 90 s de jogo acumulado | Jogador novo precisa gostar antes de ver anúncio |
+| Frequência | No máximo 1 a cada 3 game overs | Testado pela indústria: acima disso a retenção D1 cai |
+| Intervalo mínimo | 60 s entre intersticiais | Mesmo que o jogador morra rápido |
+| Nunca | Logo depois de um recompensado, nem antes de uma tela de recorde novo | Momento de alegria não leva anúncio |
+| Removível | Comprando "Sem anúncios" | Quem paga nunca mais vê intersticial; recompensados continuam disponíveis |
+
+Esses números vivem em um ScriptableObject (`MonetizationConfig`) para ajustar sem recompilar, e a 1.0 começa **mais conservadora** (1 a cada 4) até termos dados de retenção.
+
+#### Camada 3 — Compras no app [1.0 parcial]
+
+| Item | Preço sugerido (BR) | Versão | Observação |
+|---|---|---|---|
+| **Sem anúncios** | R$ 9,90 (único) | 1.0 | Remove intersticiais para sempre. Oferecido depois do 2º intersticial visto, nunca antes |
+| **Pacote Cristal** (skins Mercúrio + Cristal + Vazio) | R$ 12,90 | 1.1 | Skins premium também podem ser desbloqueadas jogando; comprar é atalho |
+| **Apoie o desenvolvedor** | R$ 4,90 | 1.1 | Dá a skin "Dourada" exclusiva como agradecimento |
+| Gotinhas (moeda) | — | nunca | Vender a moeda tira o valor do "ganhei jogando". Skins cosméticas já são o atalho |
+
+Sem "vidas", sem energia, sem timer que o dinheiro acelera. O jogo é infinito; não há o que vender além de cosmético e silêncio.
+
+#### Plataformas
+
+- **Android (Google Play):** tudo acima. SDK: **Google AdMob** (um só SDK, aprovado direto pelo Google, suporta recompensado + intersticial). Mediação (Unity LevelPlay/AppLovin MAX) só na 1.1 **se** passar de ~1.000 jogadores diários, porque aí a competição entre redes aumenta o valor de cada exibição.
+- **WebGL (itch.io):** **sem anúncios** (SDKs de anúncio não funcionam bem no WebGL e o itch.io não é loja de anúncio). O itch.io é vitrine e portfólio; ativar "pague o que quiser" com mínimo R$ 0.
+- **iOS [2.0]:** mesma estrutura; exige conta Apple (US$ 99/ano) e ATT (pedido de rastreamento).
+
+#### Obrigações legais (bloqueiam a publicação se faltarem)
+
+1. **Política de privacidade** pública (página no GitHub Pages serve) — exigida pelo Play e pelo AdMob.
+2. **Consentimento** (LGPD/GDPR) via UMP do próprio AdMob antes do primeiro anúncio.
+3. **Data safety** no Play Console declarando o que o AdMob coleta.
+4. **Público-alvo 13+** na ficha do Play. Marcar como "para crianças" obriga anúncios certificados e corta receita pela metade.
+5. Botão "Restaurar compras" na tela de opções (obrigatório para IAP).
+
+#### Métricas que decidem os ajustes
+
+Sem dados, qualquer número acima é chute. **Unity Analytics** (grátis, já no Unity) registra: partidas por sessão, retenção D1/D7, anúncios por jogador por dia, taxa de aceite do "Continuar", receita por jogador por dia (ARPDAU). Regra de ajuste: se D1 < 30 %, **reduz** intersticial antes de qualquer outra coisa.
+
+#### Implementação
+
+- `IAdsProvider` (interface) com `AdMobProvider` (Android) e `NullAdsProvider` (WebGL/editor: sempre "anúncio indisponível", botões somem). O jogo nunca sabe qual está ativo.
+- `AdsService`: `ShowRewarded(RewardKind, Action onReward)`, `TryShowInterstitial()` (aplica todas as regras do `MonetizationConfig`), eventos `OnAdOpened/OnAdClosed` (pausa música).
+- `IAPService` com Unity IAP: `BuyNoAds()`, `Restore()`, `HasNoAds` salvo em `PlayerPrefs` e validado no restore.
+- Estado novo na máquina: `ContinueOffered` (entre `Playing` e `GameOver`). Só entra se o anúncio estiver carregado e ainda não foi usado na partida; se não, vai direto a `GameOver`. Esse estado é exatamente o exemplo que o README cita como motivo de usar state machine.
+- Toda oferta dispara `GameEvents.OnMonetizationEvent(string)` para o Analytics.
 
 ---
 
@@ -459,7 +537,7 @@ Se o bloom estourar, o *fallback* é um sprite de brilho pré-desenhado atrás d
 | Meta | Recorde, 3 skins | 7 skins, conquistas, diário, Zen, estatísticas | Ranking online |
 | Áudio | 2 camadas + SFX completo | 4 camadas, tônica por bioma | |
 | Plataformas | Android + WebGL | | iOS |
-| Monetização | Nenhuma | Anúncio recompensado para continuar 1 vez | |
+| Monetização | Recompensado (continuar, dobrar, experimentar skin), intersticial com limite, IAP "Sem anúncios", consentimento, Analytics | Pacote Cristal, Apoie o dev, mediação se houver volume | iOS |
 
 **Regra do plano original continua valendo:** se atrasar, corta polimento, nunca a publicação. Se a migração 2.5D passar de 3 semanas, lança 1.0 em 2D neon (opção A) e a 2.5D vira a 1.1.
 
@@ -493,18 +571,33 @@ O plano original (Marcos 0–4) está feito até o 4 parcial. Entram três marco
 - [ ] Vibração opcional — funciona no Android
 - [ ] Perfilar 3 min de partida no celular — 60 FPS estáveis
 
+### Marco 8 — Monetização (1 semana)
+- [ ] `MonetizationConfig` SO + `AdsService` com `NullAdsProvider` — WebGL e editor rodam sem SDK
+- [ ] AdMob no Android com IDs de teste — recompensado e intersticial aparecem no celular
+- [ ] Estado `ContinueOffered` + "Dobrar gotinhas" + "Experimentar skin" — fluxo completo testado
+- [ ] Regras de intersticial (3 partidas, 90 s, 1 a cada 4, 60 s) — teste automatizado das regras
+- [ ] Unity IAP "Sem anúncios" + Restaurar — compra de teste no Play Console funciona
+- [ ] Consentimento UMP + política de privacidade publicada + Data safety preenchido
+- [ ] Unity Analytics com os 5 eventos — dashboard mostra retenção
+
 Depois, o **Marco 4 original** (publicação) segue como está: GIF, itch.io, Play Console, LinkedIn.
 
 ---
 
-## 11. Perguntas abertas (para o Hiago decidir)
+## 11. Decisões tomadas (15/11/2026)
 
-1. **2.5D agora ou depois?** A recomendação é agora (Marco 5), porque muda capturas, GIF, ícone e página do itch.io. Fazer depois significa refazer o material de divulgação.
-2. **Evaporação na 1.0?** É a mecânica que diferencia o jogo de "mais um one-tap". Mas adiciona uma forma de morrer que precisa ser muito bem comunicada. Se os testes com amigos mostrarem confusão, cai para 1.1.
-3. **Nome:** "Gota" é curto e bom em português. Para itch.io/Play internacional, "Gota" ou "Drop"? Sugestão: **"Gota"** como marca, com subtítulo em inglês na loja ("Gota — one-tap fall").
-4. **Abertura cinematográfica:** 3 s pulável toda vez que abre o app, ou só na primeira vez? Sugestão: só na primeira vez e depois como idle do menu.
-5. **Portal invulnerável:** mantém, ou o portal pode ter obstáculos "fantasma" para não virar descanso? Sugestão: mantém; é o único respiro do jogo.
-6. **Anúncio para continuar (1.1):** uma vez por partida, ou nunca? Decide depois de ver a retenção sem anúncio.
+As seis perguntas abertas da v0.1 foram respondidas pelo Hiago:
+
+| # | Pergunta | Decisão |
+|---|---|---|
+| 1 | 2.5D agora ou depois? | **Agora.** Marco 5 começa antes de qualquer publicação. Válvula de escape mantida: se passar de 3 semanas, 1.0 sai em 2D neon. |
+| 2 | Evaporação na 1.0? | **Entra para teste.** Implementa no Marco 6 e testa com pelo menos 5 pessoas. Se a maioria não entender por que morreu, a mecânica sai da 1.0 (fica atrás de uma flag no `DifficultyConfig`, não se apaga código). |
+| 3 | Nome | **"Gota"** como marca; na loja, "Gota — one-tap fall". |
+| 4 | Abertura cinematográfica | **Só na primeira vez**; depois vira o idle do menu. |
+| 5 | Portal invulnerável | **Mantém**, sem obstáculos fantasma. É o respiro. |
+| 6 | Monetização | **Monetizar ao máximo sem interromper partida**: recompensados + intersticiais com limite + "Sem anúncios" na 1.0 (ver §5.4). Entra como Marco 8. |
+
+Critério de teste da evaporação (pergunta 2): depois de 3 partidas, o testador responde "por que você morreu na última?". Se 4 de 5 citarem "sequei / fiquei pequeno" quando foi evaporação, a mecânica fica.
 
 ---
 
